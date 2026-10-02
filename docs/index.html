@@ -9,7 +9,7 @@
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23123a51'/%3E%3Cpath d='M12 44 29 19l9 13 7-9 9 21H12Z' fill='%238ee0d4'/%3E%3Ccircle cx='47' cy='17' r='5' fill='%23f5c866'/%3E%3C/svg%3E">
   <title>旅途筆記｜一起規畫旅行</title>
   <link rel="stylesheet" href="./style.css">
-  <script src="./config.js" defer></script>
+  <script src="./config.js?v=e864256" defer></script>
   <script src="./app.js" defer></script>
 </head>
 <body>
@@ -53,3 +53,4 @@
   <dialog id="itemDialog" class="item-dialog"><form id="itemForm" method="dialog"><div class="dialog-head"><div><span class="eyebrow">每日安排</span><h2 id="dialogTitle">加入安排</h2></div><button class="icon-button" id="closeDialog" type="button" aria-label="關閉">×</button></div><label>時間<input id="itemTime" type="time" required></label><label>名稱<input id="itemTitle" type="text" maxlength="100" placeholder="例如：七星潭散步" required></label><label>類型<select id="itemType"><option value="景點">景點</option><option value="餐飲">餐飲</option><option value="交通">交通</option><option value="其他">其他</option></select></label><label>預估費用（新臺幣）<input id="itemAmount" type="number" min="0" step="1" inputmode="numeric" placeholder="0"></label><label>備註<textarea id="itemNote" rows="3" maxlength="500" placeholder="地址、訂位資訊或提醒"></textarea></label><div class="dialog-actions"><button class="button button-quiet" type="button" id="cancelItem">取消</button><button class="button button-dark" type="submit">加入行程</button></div></form></dialog>
 </body>
 </html>
+
