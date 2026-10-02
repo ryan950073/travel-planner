@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#123a51">
+  <meta name="description" content="和親友一起安排每日景點、交通住宿與旅行預算。">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23123a51'/%3E%3Cpath d='M12 44 29 19l9 13 7-9 9 21H12Z' fill='%238ee0d4'/%3E%3Ccircle cx='47' cy='17' r='5' fill='%23f5c866'/%3E%3C/svg%3E">
+  <title>旅途筆記｜一起規畫旅行</title>
+  <link rel="stylesheet" href="./style.css">
+  <script src="./config.js" defer></script>
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark" aria-hidden="true">◭</span><span>旅途筆記</span></div>
+      <div class="top-actions"><span class="save-state" id="saveState" role="status" aria-live="polite">尚未建立行程</span><button class="button button-quiet" id="newTripBtn" type="button">建立新行程</button><button class="button button-dark" id="shareBtn" type="button">分享行程</button></div>
+    </header>
+
+    <div id="notice" class="notice" role="status" aria-live="polite" hidden></div>
+
+    <main class="layout">
+      <aside class="sidebar" aria-label="行程導覽">
+        <div class="sidebar-top"><span class="eyebrow">我的旅程</span><h1 id="sideTitle">新的旅行</h1><p id="sideMeta">先填入目的地與日期</p></div>
+        <nav class="day-nav" id="dayNav" aria-label="選擇日期"></nav>
+        <button class="add-day" id="addDayBtn" type="button"><span aria-hidden="true">＋</span> 新增一天</button>
+        <div class="sidebar-tip"><strong>一起規畫</strong><p>建立後分享行程連結。持有連結的人都能編輯，請只傳給信任的親友。</p></div>
+      </aside>
+
+      <div class="content">
+        <section class="trip-intro" aria-label="旅程資訊">
+          <div class="intro-image" aria-hidden="true"></div>
+          <div class="intro-content">
+            <div class="intro-kicker">TRIP PLANNER <span>·</span> 旅行從這裡開始</div>
+            <div class="intro-heading"><div><label for="tripTitle" class="sr-only">行程名稱</label><input id="tripTitle" class="title-input" maxlength="80" placeholder="為這趟旅行取個名字" autocomplete="off"><label for="destination" class="sr-only">目的地</label><input id="destination" class="destination-input" maxlength="80" placeholder="目的地，例如：花蓮、東京" autocomplete="off"></div><button class="button button-light" id="saveBtn" type="button">儲存行程</button></div>
+            <div class="trip-fields"><label>出發日期<input id="startDate" type="date"></label><label>旅程天數<input id="tripDays" type="number" min="1" max="30" inputmode="numeric"></label><label>預算（新臺幣）<input id="budget" type="number" min="0" step="1" inputmode="numeric" placeholder="選填"></label></div>
+          </div>
+        </section>
+
+        <div class="content-grid">
+          <section class="timeline-panel" aria-labelledby="dayHeading"><div class="section-heading"><div><span class="eyebrow">每日安排</span><h2 id="dayHeading">第 1 天</h2><p id="dayDate"></p></div><button class="button button-outline" id="addItemBtn" type="button">＋ 加入安排</button></div><div id="items" class="items"></div></section>
+          <aside class="details-column">
+            <section class="detail-card" aria-labelledby="travelHeading"><div class="card-heading"><span class="eyebrow">移動與休息</span><h2 id="travelHeading">交通與住宿</h2></div><label>交通方式或班次<textarea id="transport" rows="2" maxlength="500" placeholder="例如：09:00 火車抵達花蓮站"></textarea></label><label>住宿資訊<textarea id="stay" rows="2" maxlength="500" placeholder="例如：飯店名稱、地址、入住時間"></textarea></label><div class="two-fields"><label>交通費用<input id="transportCost" type="number" min="0" step="1" inputmode="numeric" placeholder="0"></label><label>住宿費用<input id="stayCost" type="number" min="0" step="1" inputmode="numeric" placeholder="0"></label></div></section>
+            <section class="detail-card budget-card" aria-labelledby="budgetHeading"><div class="card-heading"><span class="eyebrow">花費概覽</span><h2 id="budgetHeading">旅行預算</h2></div><div class="budget-total"><span>目前估計花費</span><strong id="spent">NT$ 0</strong></div><div class="progress-track" aria-hidden="true"><span id="budgetProgress"></span></div><p id="budgetRemaining" class="budget-note">填入預算後，可查看剩餘金額。</p><div class="budget-breakdown"><div><span>每日安排</span><strong id="itemCost">NT$ 0</strong></div><div><span>交通</span><strong id="transportTotal">NT$ 0</strong></div><div><span>住宿</span><strong id="stayTotal">NT$ 0</strong></div></div></section>
+          </aside>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <dialog id="itemDialog" class="item-dialog"><form id="itemForm" method="dialog"><div class="dialog-head"><div><span class="eyebrow">每日安排</span><h2 id="dialogTitle">加入安排</h2></div><button class="icon-button" id="closeDialog" type="button" aria-label="關閉">×</button></div><label>時間<input id="itemTime" type="time" required></label><label>名稱<input id="itemTitle" type="text" maxlength="100" placeholder="例如：七星潭散步" required></label><label>類型<select id="itemType"><option value="景點">景點</option><option value="餐飲">餐飲</option><option value="交通">交通</option><option value="其他">其他</option></select></label><label>預估費用（新臺幣）<input id="itemAmount" type="number" min="0" step="1" inputmode="numeric" placeholder="0"></label><label>備註<textarea id="itemNote" rows="3" maxlength="500" placeholder="地址、訂位資訊或提醒"></textarea></label><div class="dialog-actions"><button class="button button-quiet" type="button" id="cancelItem">取消</button><button class="button button-dark" type="submit">加入行程</button></div></form></dialog>
+</body>
+</html>
