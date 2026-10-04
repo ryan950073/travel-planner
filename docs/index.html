@@ -3,19 +3,21 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#123a51">
-  <meta name="description" content="和親友一起安排每日景點、交通住宿與旅行預算。">
+  <meta name="theme-color" content="#090e20">
+  <meta name="description" content="規畫行程、記錄多幣別消費，和旅伴輕鬆分帳。">
   <meta name="robots" content="noindex, nofollow">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23123a51'/%3E%3Cpath d='M12 44 29 19l9 13 7-9 9 21H12Z' fill='%238ee0d4'/%3E%3Ccircle cx='47' cy='17' r='5' fill='%23f5c866'/%3E%3C/svg%3E">
   <title>旅途筆記｜一起規畫旅行</title>
-  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./style.css?v=20261004">
   <script src="./config.js?v=e864256" defer></script>
-  <script src="./app.js" defer></script>
+  <script src="./ledger-core.js?v=20261004" defer></script>
+  <script src="./app.js?v=20261004" defer></script>
+  <script src="./finance.js?v=20261004" defer></script>
 </head>
 <body>
   <div class="app-shell">
     <header class="topbar">
-      <div class="brand"><span class="brand-mark" aria-hidden="true">◭</span><span>旅途筆記</span></div>
+      <div class="brand"><span class="brand-mark" aria-hidden="true">✧</span><span>旅途筆記<small class="brand-sub">TRAVEL / OS</small></span></div>
       <div class="top-actions"><span class="save-state" id="saveState" role="status" aria-live="polite">尚未建立行程</span><button class="button button-quiet" id="newTripBtn" type="button">建立新行程</button><button class="button button-dark" id="shareBtn" type="button">分享行程</button></div>
     </header>
 
@@ -33,24 +35,55 @@
         <section class="trip-intro" aria-label="旅程資訊">
           <div class="intro-image" aria-hidden="true"></div>
           <div class="intro-content">
-            <div class="intro-kicker">TRIP PLANNER <span>·</span> 旅行從這裡開始</div>
+            <div class="intro-kicker">YOUR NEXT COORDINATES <span>·</span> 下一站，由你定義</div>
             <div class="intro-heading"><div><label for="tripTitle" class="sr-only">行程名稱</label><input id="tripTitle" class="title-input" maxlength="80" placeholder="為這趟旅行取個名字" autocomplete="off"><label for="destination" class="sr-only">目的地</label><input id="destination" class="destination-input" maxlength="80" placeholder="目的地，例如：花蓮、東京" autocomplete="off"></div><button class="button button-light" id="saveBtn" type="button">儲存行程</button></div>
             <div class="trip-fields"><label>出發日期<input id="startDate" type="date"></label><label>旅程天數<input id="tripDays" type="number" min="1" max="30" inputmode="numeric"></label><label>預算（新臺幣）<input id="budget" type="number" min="0" step="1" inputmode="numeric" placeholder="選填"></label></div>
           </div>
         </section>
 
-        <div class="content-grid">
+        <nav class="workspace-nav" aria-label="旅程工作區">
+          <button type="button" class="workspace-button active" data-view="itinerary" aria-pressed="true">01 <span>行程規畫</span></button>
+          <button type="button" class="workspace-button" data-view="ledger" aria-pressed="false">02 <span>消費與分帳</span></button>
+          <button type="button" class="workspace-button" data-view="exchange" aria-pressed="false">03 <span>匯率換算</span></button>
+        </nav>
+        <div class="content-grid" id="view-itinerary">
           <section class="timeline-panel" aria-labelledby="dayHeading"><div class="section-heading"><div><span class="eyebrow">每日安排</span><h2 id="dayHeading">第 1 天</h2><p id="dayDate"></p></div><button class="button button-outline" id="addItemBtn" type="button">＋ 加入安排</button></div><div id="items" class="items"></div></section>
           <aside class="details-column">
             <section class="detail-card" aria-labelledby="travelHeading"><div class="card-heading"><span class="eyebrow">移動與休息</span><h2 id="travelHeading">交通與住宿</h2></div><label>交通方式或班次<textarea id="transport" rows="2" maxlength="500" placeholder="例如：09:00 火車抵達花蓮站"></textarea></label><label>住宿資訊<textarea id="stay" rows="2" maxlength="500" placeholder="例如：飯店名稱、地址、入住時間"></textarea></label><div class="two-fields"><label>交通費用<input id="transportCost" type="number" min="0" step="1" inputmode="numeric" placeholder="0"></label><label>住宿費用<input id="stayCost" type="number" min="0" step="1" inputmode="numeric" placeholder="0"></label></div></section>
             <section class="detail-card budget-card" aria-labelledby="budgetHeading"><div class="card-heading"><span class="eyebrow">花費概覽</span><h2 id="budgetHeading">旅行預算</h2></div><div class="budget-total"><span>目前估計花費</span><strong id="spent">NT$ 0</strong></div><div class="progress-track" aria-hidden="true"><span id="budgetProgress"></span></div><p id="budgetRemaining" class="budget-note">填入預算後，可查看剩餘金額。</p><div class="budget-breakdown"><div><span>每日安排</span><strong id="itemCost">NT$ 0</strong></div><div><span>交通</span><strong id="transportTotal">NT$ 0</strong></div><div><span>住宿</span><strong id="stayTotal">NT$ 0</strong></div></div></section>
           </aside>
         </div>
+        <section id="view-ledger" class="workspace-panel" aria-label="消費與分帳" hidden>
+          <div class="ledger-heading"><div><span class="eyebrow">TRIP LEDGER / 旅途帳本</span><h2>把回憶留下，把帳算清。</h2><p class="muted">實際消費獨立記錄；加入後請按「儲存行程」，與親友共用。</p></div><button class="button button-dark" type="button" id="addExpenseBtn">＋ 記一筆消費</button></div>
+          <div class="stat-grid">
+            <article class="stat-card"><span>實際消費 · TWD</span><strong id="actualTotal">NT$ 0.00</strong><small id="expenseCount">0 筆消費</small></article>
+            <article class="stat-card"><span>尚待結清 · TWD</span><strong id="pendingTotal">NT$ 0.00</strong><small>依旅伴收支淨額計算</small></article>
+            <article class="stat-card"><span>實際預算餘額 · TWD</span><strong id="actualRemaining">未設定</strong><small>不重複計入行程預估費用</small></article>
+          </div>
+          <section class="detail-card member-card" aria-labelledby="membersHeading"><div><span class="eyebrow">TRAVEL CREW</span><h3 id="membersHeading">同行旅伴</h3></div><form id="memberForm" class="inline-form"><label class="sr-only" for="memberName">旅伴姓名</label><input id="memberName" maxlength="30" placeholder="輸入旅伴姓名" required><button class="button button-outline" type="submit">加入旅伴</button></form><div id="memberList" class="member-list"></div><p class="muted small">已被消費或還款使用的旅伴不可刪除。分攤時可選擇部分旅伴。</p></section>
+          <div class="finance-grid">
+            <section class="detail-card" aria-labelledby="expensesHeading"><div class="section-heading"><div><span class="eyebrow">TRANSACTIONS</span><h2 id="expensesHeading">消費紀錄</h2></div><span class="pill">以新臺幣結算</span></div><div id="expenseList" class="record-list"></div></section>
+            <section class="detail-card" aria-labelledby="settlementHeading"><span class="eyebrow">SETTLEMENT</span><h2 id="settlementHeading">誰該付給誰</h2><p class="muted small">依全部消費與已記錄還款計算。標記還款只做紀錄，不會實際轉帳。</p><div id="balanceList" class="balance-list"></div><div id="settlementList" class="record-list"></div><h3>還款紀錄</h3><div id="paymentList" class="record-list"></div></section>
+          </div>
+        </section>
+        <section id="view-exchange" class="workspace-panel" aria-labelledby="exchangeHeading" hidden>
+          <div class="ledger-heading"><div><span class="eyebrow">CURRENCY / 匯率工具</span><h2 id="exchangeHeading">不同幣別，同一本旅途帳。</h2><p class="muted">查詢每日參考匯率，也可以填入實際換匯或刷卡匯率。</p></div></div>
+          <div class="exchange-grid"><form id="exchangeForm" class="detail-card"><div class="two-fields"><label>原始幣別<select id="fxFrom"></select></label><label>目標幣別<select id="fxTo"></select></label></div><label>換算金額<input id="fxAmount" type="number" min="0.01" step="0.01" value="1000" required></label><label>匯率（1 原幣＝多少目標幣）<input id="fxRate" type="number" min="0.00000001" step="0.00000001" placeholder="先取得匯率，或自行輸入" required></label><button class="button button-outline full-width" type="button" id="fetchFxBtn">取得最新參考匯率</button><p id="fxStatus" class="muted small" role="status">尚未查詢匯率</p><button class="button button-dark full-width" type="submit">換算金額</button><output id="fxResult" class="fx-result" aria-live="polite">—</output></form><aside class="detail-card exchange-info"><span class="orb-symbol" aria-hidden="true">◎</span><span class="eyebrow">ONE TRIP. MANY CURRENCIES.</span><h2>每筆消費，保留當下的匯率。</h2><p>帳本保留原幣金額、入帳匯率及換算後的新臺幣金額；更新參考匯率不會改動既有消費。</p><p>自動匯率來源：<a href="https://frankfurter.dev/" target="_blank" rel="noopener noreferrer">Frankfurter</a>，畫面會顯示資料日期。參考匯率不含換匯價差或刷卡手續費；無法連線時可手動輸入。</p></aside></div>
+        </section>
       </div>
     </main>
   </div>
 
   <dialog id="itemDialog" class="item-dialog"><form id="itemForm" method="dialog"><div class="dialog-head"><div><span class="eyebrow">每日安排</span><h2 id="dialogTitle">加入安排</h2></div><button class="icon-button" id="closeDialog" type="button" aria-label="關閉">×</button></div><label>時間<input id="itemTime" type="time" required></label><label>名稱<input id="itemTitle" type="text" maxlength="100" placeholder="例如：七星潭散步" required></label><label>類型<select id="itemType"><option value="景點">景點</option><option value="餐飲">餐飲</option><option value="交通">交通</option><option value="其他">其他</option></select></label><label>預估費用（新臺幣）<input id="itemAmount" type="number" min="0" step="1" inputmode="numeric" placeholder="0"></label><label>備註<textarea id="itemNote" rows="3" maxlength="500" placeholder="地址、訂位資訊或提醒"></textarea></label><div class="dialog-actions"><button class="button button-quiet" type="button" id="cancelItem">取消</button><button class="button button-dark" type="submit">加入行程</button></div></form></dialog>
+  <dialog id="expenseDialog" class="item-dialog expense-dialog"><form id="expenseForm"><div class="dialog-head"><div><span class="eyebrow">TRIP LEDGER</span><h2 id="expenseDialogTitle">記一筆消費</h2></div><button class="icon-button" type="button" id="closeExpense" aria-label="關閉消費視窗">×</button></div>
+    <div class="two-fields"><label>消費日期<input id="expenseDate" type="date" required></label><label>分類<select id="expenseCategory"><option>餐飲</option><option>交通</option><option>住宿</option><option>購物</option><option>景點</option><option>其他</option></select></label></div>
+    <label>消費名稱<input id="expenseTitle" maxlength="100" placeholder="例如：東京車站晚餐" required></label>
+    <div class="two-fields"><label>原幣金額<input id="expenseAmount" type="number" min="0.01" step="0.01" placeholder="0.00" required></label><label>幣別<select id="expenseCurrency"></select></label></div>
+    <label>入帳匯率（1 原幣＝多少新臺幣）<input id="expenseRate" type="number" min="0.00000001" step="0.00000001" required></label><button class="button button-outline full-width" type="button" id="fetchExpenseRate">取得最新參考匯率</button><p id="expenseRateStatus" class="muted small" role="status"></p><p id="expenseConverted" class="converted" aria-live="polite">換算金額：—</p>
+    <div class="two-fields"><label>付款人<select id="expensePayer" required></select></label><label>分攤方式<select id="splitMode"><option value="equal">平均分攤</option><option value="custom">自訂金額（新臺幣）</option></select></label></div>
+    <fieldset class="split-fieldset"><legend>參與分攤的旅伴</legend><div id="splitMembers"></div></fieldset><p class="muted small">平均分攤的尾差依旅伴順序分配；自訂金額以新臺幣填寫，總和需等於換算金額。</p>
+    <label>備註<textarea id="expenseNote" maxlength="500" rows="2" placeholder="收據、店家或付款方式"></textarea></label><p id="expenseError" class="form-error" role="alert"></p><div class="dialog-actions"><button class="button button-quiet" type="button" id="cancelExpense">取消</button><button class="button button-dark" type="submit">儲存這筆消費</button></div>
+  </form></dialog>
 </body>
 </html>
 
