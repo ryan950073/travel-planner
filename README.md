@@ -41,3 +41,13 @@ node --test tests/ledger.test.cjs
 ```
 
 完整瀏覽器測試：安裝 Playwright 與 Chromium，在一個終端啟動 `python -m http.server 8765 --directory docs`，另一個終端執行 `node tests/browser.cjs`。可用 `TEST_URL` 指定測試伺服器、`CHROMIUM_PATH` 指定已安裝的 Chromium。瀏覽器測試攔截資料庫與匯率請求，不會寫入正式行程；涵蓋舊資料載入、消費編輯、分攤、還款、儲存重載、版本衝突、儲存期間修改、匯率失敗／請求競速及手機版面。
+
+## Google Maps 與景點圖片
+
+在「加入安排／編輯安排」填入 **地點名稱**（正式景點名稱較容易找到圖片）與選填的 **地址或座標**。行程卡片提供 Google 地圖搜尋、從目前位置出發，以及從上一站出發的路線連結；上一站依當天時間排序。地圖交通方式可選擇大眾運輸、步行、開車或自行車，會與行程一起儲存。Google Maps 開啟後會判斷所在地或請你選擇起點，路線可用性依當地服務而定。
+
+圖片會自動查詢 Wikipedia（中文、英文、日文）相符名稱或重新導向的地點條目，只採用含座標、非消歧義頁且具有可識別自由授權及作者資訊的 Wikimedia 圖片。卡片標示條目名稱、作者、授權及原始檔案頁連結。圖片是參考景觀，未保證拍攝日期；同名地點仍請核對，必要時在編輯視窗取消「自動顯示景點圖片」。部分餐廳與店家沒有條目或圖片，會顯示無圖片提示；服務失敗可重試。圖片查詢使用瀏覽器內暫存，不佔用行程文件容量，也不會將查詢結果標記為未儲存。
+
+Google Maps 連結採官方 [Maps URLs](https://developers.google.com/maps/documentation/urls/get-started)，不需要 Google API key；景點照片來自 Wikipedia / Wikimedia，並非 Google 商家照片。地圖與圖片請求不會傳送行程分享金鑰。舊行程未填地點時，以行程名稱作為查詢文字；可透過編輯補上正式地點以改善結果。不需要更新 Supabase 結構。
+
+地圖與圖片瀏覽器測試（相同本機伺服器、Playwright 環境）：`node tests/maps-browser.cjs`。測試模擬圖片與資料庫服務，不寫入正式行程。
